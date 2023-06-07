@@ -1,13 +1,17 @@
-const text = document.getElementById('editor');
-const btn = document.querySelector('.btn__delete');
+const card = document.querySelector(".card");
+const editor = document.getElementById("editor");
+const button = document.createElement("button");
+button.className = "clear_text";
+button.textContent = "Очистить содержимое";
+card.appendChild(button);
 
-text.value = localStorage.getItem('text');
-text.oninput = () => {
-      localStorage.setItem('text', text.value)
-    };
+editor.value = localStorage.getItem("textEditor");
+editor.addEventListener("keyup", () => {
+  localStorage.textEditor = editor.value;
+});
 
-
-    btn.onclick = () => {
-    text.value = '';
-    localStorage.removeItem('text');
-    }
+const clearText = document.querySelector(".clear_text");
+clearText.addEventListener("click", () => {
+  localStorage.removeItem("textEditor");
+  editor.value = "";
+});
