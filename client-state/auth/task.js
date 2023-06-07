@@ -1,46 +1,45 @@
-const signin = document.getElementById('signin');
-const form = document.getElementById('signin__form');
-const btnExit = document.querySelector('.deauthorization');
-const welcome = document.querySelector('.welcome');
+const form = document.getElementById("signin__form");
+const inputFields = Array.from(document.querySelectorAll(".control"));
+const userId = document.getElementById("user_id");
+const signin = document.querySelector(".signin");
+const welcome = document.querySelector(".welcome");
+const button = document.querySelector(".btn");
 
-const userId = document.getElementById('user_id');
+let savedId;
 
+form.addEventListener("submit", (event) => {
+  const xhr = new XMLHttpRequest();
 
-const showGreet =() => {
-  signin.classList.remove('signin_active');
-  welcome.classList.add('welcome_active');
-};
+  xhr.addEventListener("readystatechange", () => {
+    if (xhr.readyState === xhr.DONE) {
+      let responseText = JSON.parse(xhr.responseText);
 
-window.addEventListener('load', ()=> {
-    if (localStorage.loginId) {
-        showGreet();
-        userId.textContent = localStorage.loginId;
+      if (responseText.success === true) {
+        inputFields.value = "";
+        localStorage.setItem("id", JSON.stringify(responseText.user_id));
+        savedId = localStorage.getItem("id");
+        userId.textContent = savedId;
+        signin.classList.remove("signin_active");
+        welcome.classList.add("welcome_active");
+      } else {
+        alert("Неверный логин/пароль");
+      }
     }
+  });
+
+  xhr.open("POST", "https://students.netoservices.ru/nestjs-backend/auth");
+
+  const formData = new FormData(form);
+  xhr.send(formData);
+
+  event.preventDefault();
 });
 
-form.addEventListener('submit', (e)=> {
-    e.preventDefault()
-    let userDate = new FormData(form);
-    let request = new XMLHttpRequest();
-    request.open('POST', 'https://students.netoservices.ru/nestjs-backend/auth');
-    request.responseType = 'json'
-    request.send(userDate);
-    request.addEventListener('load', () => {
-            let data = request.response;
-            if (data.success) {
-                showGreet()
-                userId.textContent = data.user_id
-                localStorage.loginId = data.user_id
-            }  else {
-                alert('Неверный логин/пароль');
-                form.reset();
-            }
-    });
-});
-
-btnExit.addEventListener('click', ()=> {
-    localStorage.removeItem('loginId');
-    welcome.classList.remove('welcome_active');
-    signin.classList.add('signin_active');
-    form.reset();
+window.addEventListener("load", () => {
+  savedId = localStorage.getItem("id");
+  if (savedId) {
+    userId.textContent = savedId;
+    signin.classList.remove("signin_active");
+    welcome.classList.add("welcome_active");
+  }
 });
